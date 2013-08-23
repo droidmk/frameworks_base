@@ -164,4 +164,7 @@
 
     <!-- First time run hover -->
     <string name="hover_cling_text">Hover is now enabled.\n\nWhen a new notification arrives, an overlay will show allowing you to respond to it without leaving current app.</string>
+
+    <!-- Title shown in notification popup for launching notification in floating mode -->
+    <string name="status_bar_notification_floating_item_title">Floating mode</string>
 </resources>

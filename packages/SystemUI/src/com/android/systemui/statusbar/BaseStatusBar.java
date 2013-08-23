@@ -593,9 +593,15 @@ public abstract class BaseStatusBar extends SystemUI implements
         return new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                final String packageNameF = (String) v.getTag();
+                NotificationData.Entry  entry = (NotificationData.Entry) v.getTag();
+                StatusBarNotification sbn = entry.notification;
+
+                final String packageNameF = sbn.getPackageName();
+                final PendingIntent contentIntent = sbn.getNotification().contentIntent;
+
                 if (packageNameF == null) return false;
                 if (v.getWindowToken() == null) return false;
+
                 mNotificationBlamePopup = new PopupMenu(mContext, v);
                 mNotificationBlamePopup.getMenuInflater().inflate(
                         R.menu.notification_popup_menu,
@@ -606,28 +612,22 @@ public abstract class BaseStatusBar extends SystemUI implements
                             startApplicationDetailsActivity(packageNameF);
                             animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
                         } else if (item.getItemId() == R.id.notification_floating_item) {
-                            boolean allowed = true;
-                            try {
-                                // preloaded apps are added to the blacklist array when is recreated, handled in the notification manager
-                                allowed = mNotificationManager.isPackageAllowedForFloatingMode(packageNameF);
-                            } catch (android.os.RemoteException ex) {
-                                // System is dead
-                            }
-                            if (allowed) {
-                                launchFloating(contentIntent);
-                                animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
-                            } else {
-                                String text = mContext.getResources().getString(R.string.floating_mode_blacklisted_app);
-                                int duration = Toast.LENGTH_LONG;
-                                animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
-                                Toast.makeText(mContext, text, duration).show();
-                            }
+                            launchFloating(contentIntent);
+                            animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
                         } else {
                             return false;
                         }
                         return true;
                     }
                 });
+
+                mNotificationBlamePopup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                    @Override
+                    public void onDismiss(PopupMenu popupMenu) {
+                        mNotificationBlamePopup = null;
+                    }
+                });
+
                 mNotificationBlamePopup.show();
 
                 return true;
@@ -915,7 +915,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 R.layout.status_bar_notification_row, parent, false);
 
         // for blaming (see SwipeHelper.setLongPressListener)
-        row.setTag(sbn.getPackageName());
+        row.setTag(entry);
 
         workAroundBadLayerDrawableOpacity(row);
         View vetoButton = updateNotificationVetoButton(row, sbn);
@@ -1005,11 +1005,21 @@ public abstract class BaseStatusBar extends SystemUI implements
             mId = id;
         }
 
+        public NotificationClicker(Intent intent) {
+            this();
+            mIntent = intent;
+        }
+
+        public NotificationClicker() {
+            mKeyguard = KeyguardTouchDelegate.getInstance(mContext);
+        }
+
         public void makeFloating(boolean floating) {
             mFloat = floating;
         }
 
         public void onClick(View v) {
+            if (mNotificationBlamePopup != null) return;
             try {
                 // The intent we are sending is for the application, which
                 // won't have permission to immediately start an activity after
