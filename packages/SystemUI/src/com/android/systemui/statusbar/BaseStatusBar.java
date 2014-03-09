@@ -86,6 +86,8 @@ import com.android.systemui.statusbar.phone.KeyguardTouchDelegate;
 import com.android.systemui.statusbar.phone.NavigationBarOverlay;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
 import com.android.systemui.statusbar.policy.PieController;
+import com.android.systemui.statusbar.notification.NotificationPeek;
+import com.android.systemui.statusbar.phone.Ticker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,6 +155,9 @@ public abstract class BaseStatusBar extends SystemUI implements
     PowerManager mPowerManager;
     protected int mRowHeight;
 
+	// Notification peek
+    protected NotificationPeek mNotificationPeek;
+
     /**
      * An interface for navigation key bars to allow status bars to signal which keys are
      * currently of interest to the user.<br>
@@ -209,6 +214,10 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     public boolean isDeviceProvisioned() {
         return mDeviceProvisioned;
+    }
+
+    public NotificationData getNotifications() {
+        return mNotificationData;
     }
 
     private ContentObserver mProvisioningObserver = new ContentObserver(new Handler()) {
@@ -289,6 +298,8 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         mLocale = mContext.getResources().getConfiguration().locale;
         mLayoutDirection = TextUtils.getLayoutDirectionFromLocale(mLocale);
+
+        mNotificationPeek = new NotificationPeek(this, mContext);
 
         mRecents = new RecentController(mContext, mLayoutDirection);
 
@@ -910,6 +921,9 @@ public abstract class BaseStatusBar extends SystemUI implements
             // close the shade if it was open
             animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
             visibilityChanged(false);
+
+            // hide notification peek screen
+            mNotificationPeek.dismissNotification();
         }
     }
     /**
@@ -957,6 +971,8 @@ public abstract class BaseStatusBar extends SystemUI implements
         updateExpansionStates();
         updateNotificationIcons();
 
+        mNotificationPeek.removeNotification(entry.notification);
+
         return entry.notification;
     }
 
@@ -999,6 +1015,8 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
         updateExpansionStates();
         updateNotificationIcons();
+
+        mNotificationPeek.showNotification(entry.notification, false);
     }
 
     private void addNotificationViews(IBinder key, StatusBarNotification notification) {
@@ -1183,6 +1201,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         } else {
             entry.content.setOnClickListener(null);
         }
+		mNotificationPeek.showNotification(entry.notification, true);
     }
 
     protected void notifyHeadsUpScreenOn(boolean screenOn) {
