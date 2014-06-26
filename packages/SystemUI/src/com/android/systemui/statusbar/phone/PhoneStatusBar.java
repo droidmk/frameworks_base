@@ -1392,11 +1392,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                             ? R.drawable.ic_notify_hover_pressed
                                     : R.drawable.ic_notify_hover_normal);
                 }
-
-                if (mEditModeButton != null) {
-                    mEditModeButton.setOnClickListener(mEditModeButtonListener);
-                    mEditModeButton.setEnabled(true);
-				}
             } else {
                 mQS = null; // fly away, be free
             }
@@ -2450,6 +2445,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         return (mDisabled & StatusBarManager.DISABLE_EXPAND) == 0;
     }
 
+    @Override
+    public boolean isExpandedVisible() {
+        return mExpandedVisible;
+    }
+
     void makeExpandedVisible() {
         if (SPEW) Log.d(TAG, "Make expanded visible: expanded visible=" + mExpandedVisible);
         if (mExpandedVisible || !panelsEnabled()) {
@@ -3415,6 +3415,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     private class MyTicker extends Ticker {
+        private boolean hasTicked = false;
 
         MyTicker(Context context, View sb) {
             super(context, sb);
@@ -3905,8 +3906,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 notifyHeadsUpScreenOn(false);
                 unregisterShakeListener();
                 finishBarAnimations();
-                // detach pie when screen is turned off
-                if (mPieController != null) mPieController.detachPie();
                 // detach hover when screen is turned off
                 if (mHover.isShowing()) mHover.dismissHover(false, true);
             }

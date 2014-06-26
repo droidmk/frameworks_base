@@ -3864,6 +3864,14 @@ public final class Settings {
         public static final String RECENT_PANEL_SHOW_TOPMOST = "recent_panel_show_topmost";
 
         /**
+	* In call dialpad state.
+	* 0 = hidden
+	* 1 = showing
+	* @hide
+	*/
+        public static final String DIALPAD_STATE = "dialpad_state";
+
+        /**
          * Either if notification peek is enabled of disabled
          * 0 = disabled (default)
          * 1 = enabled

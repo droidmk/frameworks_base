@@ -83,6 +83,11 @@ import com.android.internal.util.slim.DeviceUtils;
 import com.android.systemui.R;
 import com.android.systemui.SearchPanelView;
 import com.android.systemui.SystemUI;
+import com.android.systemui.slimrecent.RecentController;
+import com.android.systemui.statusbar.phone.KeyguardTouchDelegate;
+import com.android.systemui.statusbar.phone.NavigationBarOverlay;
+import com.android.systemui.statusbar.policy.NotificationRowLayout;
+import com.android.systemui.statusbar.policy.PieController;
 import com.android.systemui.statusbar.notification.Hover;
 import com.android.systemui.statusbar.notification.HoverCling;
 import com.android.systemui.statusbar.notification.NotificationHelper;
@@ -192,7 +197,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             new ArrayList<NavigationBarCallback>();
 
     // Pie Control
-    private PieController mPieController;
+    public PieController mPieController;
     protected NavigationBarOverlay mNavigationBarOverlay;
 
     private EdgeGestureManager mEdgeGestureManager;
@@ -404,9 +409,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_USER_SWITCHED);
         mContext.registerReceiver(mBroadcastReceiver, filter);
-
-        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
-        settingsObserver.observe();
 
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.HOVER_STATE),
@@ -1031,15 +1033,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             mId = id;
         }
 
-        public NotificationClicker(Intent intent) {
-            this();
-            mIntent = intent;
-        }
-
-        public NotificationClicker() {
-            mKeyguard = KeyguardTouchDelegate.getInstance(mContext);
-        }
-
         public void makeFloating(boolean floating) {
             mFloat = floating;
         }
@@ -1067,7 +1060,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 // System is dead
             }
 
-            if (mPendingIntent != null) {
+            if (mIntent != null) {
                 int[] pos = new int[2];
                 v.getLocationOnScreen(pos);
                 Intent overlay = new Intent();
@@ -1075,14 +1068,11 @@ public abstract class BaseStatusBar extends SystemUI implements
                 overlay.setSourceBounds(
                         new Rect(pos[0], pos[1], pos[0] + v.getWidth(), pos[1] + v.getHeight()));
                 try {
-                    mPendingIntent.send(mContext, 0, overlay);
+                    mIntent.send(mContext, 0, overlay);
                 } catch (PendingIntent.CanceledException e) {
                     // the stack trace isn't very helpful here.  Just log the exception message.
                     Log.w(TAG, "Sending contentIntent failed: " + e);
                 }
-            } else if(mIntent != null) {
-                if (mFloat && allowed) mIntent.addFlags(flags);
-                mContext.startActivity(mIntent);
             }
 
             try {
@@ -1312,10 +1302,10 @@ public abstract class BaseStatusBar extends SystemUI implements
                 && notification.getScore() == oldNotification.getScore();
                 // score now encompasses/supersedes isOngoing()
 
-        boolean updateTicker = notification.getNotification().tickerText != null
+        boolean updateTicker = (notification.getNotification().tickerText != null
                 && !TextUtils.equals(notification.getNotification().tickerText,
                         oldEntry.notification.getNotification().tickerText)) &&
-                        (mHoverState == HOVER_DISABLED);
+			(mHoverState == HOVER_DISABLED);
         boolean isTopAnyway = isTopNotification(rowParent, oldEntry);
         if (contentsUnchanged && bigContentsUnchanged && (orderUnchanged || isTopAnyway)) {
             if (DEBUG) Log.d(TAG, "reusing notification for key: " + key);

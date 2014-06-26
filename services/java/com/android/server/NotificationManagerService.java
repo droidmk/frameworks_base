@@ -994,6 +994,27 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
+* Removes a listener from the list but does not unbind from the listener's service.
+*
+* @return the removed listener.
+*/
+    NotificationListenerInfo removeListenerImpl(
+            final INotificationListener listener, final int userid) {
+        NotificationListenerInfo listenerInfo = null;
+        synchronized (mNotificationList) {
+            final int N = mListeners.size();
+            for (int i=N-1; i>=0; i--) {
+                final NotificationListenerInfo info = mListeners.get(i);
+                if (info.listener.asBinder() == listener.asBinder()
+                        && info.userid == userid) {
+                    listenerInfo = mListeners.remove(i);
+                }
+            }
+        }
+        return listenerInfo;
+    }
+
+    /**
      * Remove a listener binder directly
      */
     @Override
@@ -1592,9 +1613,9 @@ public class NotificationManagerService extends INotificationManager.Stub
                 VIBRATE_PATTERN_MAXLEN,
                 DEFAULT_VIBRATE_PATTERN);
 
-        mNotificationPulseCustomLedValues = new ArrayMap<String, NotificationLedValues>();
+        mNotificationPulseCustomLedValues = new HashMap<String, NotificationLedValues>();
 
-        mPackageNameMappings = new ArrayMap<String, String>();
+        mPackageNameMappings = new HashMap<String, String>();
         for (String mapping : resources.getStringArray(
                  com.android.internal.R.array.notification_light_package_mapping)) {
             String[] map = mapping.split("\\|");
