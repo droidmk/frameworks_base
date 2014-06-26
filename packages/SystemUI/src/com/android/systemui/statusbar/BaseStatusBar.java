@@ -893,7 +893,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         return new NotificationClicker(intent, pkg, tag, id);
     }
 
-    protected class NotificationClicker implements View.OnClickListener {
+    public class NotificationClicker implements View.OnClickListener {
         private PendingIntent mIntent;
         private String mPkg;
         private String mTag;
