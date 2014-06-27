@@ -3232,12 +3232,6 @@ public abstract class PackageManager {
     }
 
     /**
-     * Updates the theme icon res id for the new theme
-     * @hide
-     */
-    public abstract void updateIconMaps(String pkgName);
-
-    /**
      * Update Component protection state
      */
     public abstract void setComponentProtectedSetting(ComponentName componentName, boolean newState);

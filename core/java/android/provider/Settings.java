@@ -6060,25 +6060,6 @@ public final class Settings {
         public static final String ADVANCED_REBOOT = "advanced_reboot";
 
         /**
-         * Whether to display the 'Wipe data' and 'Force close' options in the notification
-         * area and in the recent app list
-         * @hide
-         */
-        public static final String DEVELOPMENT_SHORTCUT = "development_shortcut";
-
-        /**
-         * Whether newly installed apps should run with privacy guard by default
-         * @hide
-         */
-         public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
-
-        /**
-         * Default theme to use.  If empty, use holo.
-         * @hide
-         */
-        public static final String DEFAULT_THEME_PACKAGE = "default_theme_package";
-
-        /**
          * A '|' delimited list of theme components to apply from the default theme on first boot.
          * Components can be one or more of the "mods_XXXXXXX" found in
          * {@link ThemesContract$ThemesColumns}.  Leaving this field blank assumes all components

@@ -589,7 +589,6 @@ public class ApplicationInfo extends PackageItemInfo implements Parcelable {
         descriptionRes = orig.descriptionRes;
         uiOptions = orig.uiOptions;
         backupAgentName = orig.backupAgentName;
-        isThemeable = orig.isThemeable;
         protect = orig.protect;
     }
 
@@ -631,7 +630,6 @@ public class ApplicationInfo extends PackageItemInfo implements Parcelable {
         dest.writeString(backupAgentName);
         dest.writeInt(descriptionRes);
         dest.writeInt(uiOptions);
-        dest.writeInt(isThemeable? 1 : 0);
         dest.writeInt(protect ? 1 : 0);
     }
 
@@ -672,7 +670,6 @@ public class ApplicationInfo extends PackageItemInfo implements Parcelable {
         backupAgentName = source.readString();
         descriptionRes = source.readInt();
         uiOptions = source.readInt();
-        isThemeable = source.readInt() != 0;
         protect = source.readInt() != 0;
     }
 

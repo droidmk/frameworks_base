@@ -11762,55 +11762,6 @@ public class PackageManagerService extends IPackageManager.Stub {
     }
 
     @Override
-    public void updateIconMapping(String pkgName) {
-        mContext.enforceCallingOrSelfPermission(
-                android.Manifest.permission.CHANGE_CONFIGURATION,
-                "could not update icon mapping because caller does not have change config permission");
-
-        synchronized (mPackages) {
-            ThemeUtils.clearIconCache();
-            if (pkgName == null) {
-                clearIconMapping();
-                return;
-            }
-            mIconPackHelper = new IconPackHelper(mContext);
-            try {
-                mIconPackHelper.loadIconPack(pkgName);
-            } catch(NameNotFoundException e) {
-                Log.e(TAG, "Unable to find icon pack: " + pkgName);
-                clearIconMapping();
-                return;
-            }
-
-            for (Activity activity : mActivities.mActivities.values()) {
-                activity.info.themedIcon =
-                        mIconPackHelper.getResourceIdForActivityIcon(activity.info);
-            }
-
-            for (Package pkg : mPackages.values()) {
-                pkg.applicationInfo.themedIcon =
-                        mIconPackHelper.getResourceIdForApp(pkg.packageName);
-            }
-        }
-    }
-
-    private void clearIconMapping() {
-        mIconPackHelper = null;
-        for (Activity activity : mActivities.mActivities.values()) {
-            activity.info.themedIcon = 0;
-        }
-
-        for (Package pkg : mPackages.values()) {
-            pkg.applicationInfo.themedIcon = 0;
-        }
-    }
-
-    @Override
-    public ComposedIconInfo getComposedIconInfo() {
-        return mIconPackHelper != null ? mIconPackHelper.getComposedIconInfo() : null;
-    }
-
-    @Override
     public void setComponentProtectedSetting(ComponentName componentName, boolean newState,
             int userId) {
         enforceCrossUserPermission(Binder.getCallingUid(), userId, false, "set protected");

@@ -1361,24 +1361,12 @@ final class ApplicationPackageManager extends PackageManager {
     private static ArrayMap<ResourceName, WeakReference<CharSequence>> sStringCache
             = new ArrayMap<ResourceName, WeakReference<CharSequence>>();
 
-    /**
-     * @hide
-     */
-    @Override
-    public void updateIconMaps(String pkgName) {
-        try {
-            mPM.updateIconMapping(pkgName);
-        } catch (RemoteException re) {
-            Log.e(TAG, "Failed to update icon maps", re);
-        }
-    }
-
     @Override
     public void setComponentProtectedSetting(ComponentName componentName, boolean newState) {
         try {
             mPM.setComponentProtectedSetting(componentName, newState, mContext.getUserId());
         } catch (RemoteException re) {
             Log.e(TAG, "Failed to set component protected setting", re);
-        }
+	}
     }
 }
